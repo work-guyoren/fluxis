@@ -173,7 +173,7 @@ jobs:
           aws-region: us-east-2
 
       - name: Download Terraform Directory
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: terraform-directory
           path: ./infrastructure/terraform
@@ -220,7 +220,7 @@ jobs:
           aws-region: us-east-2
 
       - name: Download Terraform Directory
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: terraform-directory
           path: ./infrastructure/terraform
