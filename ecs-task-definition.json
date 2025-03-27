@@ -1,0 +1,35 @@
+{
+  "family": "microservice-1",
+  "containerDefinitions": [
+    {
+      "name": "microservice-1-container",
+      "image": "${ECR_URL_MICROSERVICE_1}:latest",
+      "memory": 512,
+      "cpu": 256,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5000,
+          "hostPort": 5000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "QUEUE_URL",
+          "value": "<your-sqs-queue-url>"
+        },
+        {
+          "name": "TOKEN_PARAM_NAME",
+          "value": "${SSM_PARAM_NAME}"
+        }
+      ]
+    }
+  ],
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "<your-ecs-task-execution-role-arn>",
+  "taskRoleArn": "<your-ecs-task-role-arn>"
+}
