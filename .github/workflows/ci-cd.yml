@@ -148,7 +148,7 @@ jobs:
       - name: Download Terraform Directory
         uses: actions/download-artifact@v4
         with:
-          name: terraform-directory
+          name: terraform-directory-${{ github.run_id }}
           path: ./infrastructure/terraform
       - name: Install Terraform
         run: |
@@ -218,7 +218,7 @@ jobs:
       - name: Download Terraform Directory
         uses: actions/download-artifact@v4
         with:
-          name: terraform-directory
+          name: terraform-directory-${{ github.run_id }}
           path: ./infrastructure/terraform
       - name: Install Terraform
         run: |
