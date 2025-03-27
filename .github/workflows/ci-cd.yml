@@ -53,6 +53,13 @@ jobs:
           unzip terraform_1.5.0_linux_amd64.zip
           sudo mv terraform /usr/local/bin/
 
+      - name: Verify Terraform Directory
+        run: |
+          if [ ! -d "./infrastructure/terraform" ]; then
+            echo "Error: Directory ./infrastructure/terraform does not exist."
+            exit 1
+          fi
+
       - name: Initialize Terraform
         run: |
           terraform -chdir=./infrastructure/terraform init
@@ -68,6 +75,13 @@ jobs:
           docker build -t $ECR_URL_MICROSERVICE_1:latest ./microservice-1
           aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $ECR_URL_MICROSERVICE_1
           docker push $ECR_URL_MICROSERVICE_1:latest
+
+      - name: Upload Terraform Directory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-directory
+          path: ./infrastructure/terraform
 
   build-microservice-2:
     name: Build, Test, and Push Microservice 2
@@ -115,6 +129,13 @@ jobs:
           unzip terraform_1.5.0_linux_amd64.zip
           sudo mv terraform /usr/local/bin/
 
+      - name: Verify Terraform Directory
+        run: |
+          if [ ! -d "./infrastructure/terraform" ]; then
+            echo "Error: Directory ./infrastructure/terraform does not exist."
+            exit 1
+          fi
+
       - name: Initialize Terraform
         run: |
           terraform -chdir=./infrastructure/terraform init
@@ -131,6 +152,13 @@ jobs:
           aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $ECR_URL_MICROSERVICE_2
           docker push $ECR_URL_MICROSERVICE_2:latest
 
+      - name: Upload Terraform Directory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-directory
+          path: ./infrastructure/terraform
+
   # CD Jobs
   deploy-microservice-1:
     name: Deploy Microservice 1
@@ -144,12 +172,29 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
+      - name: Download Terraform Directory
+        uses: actions/download-artifact@v3
+        with:
+          name: terraform-directory
+          path: ./infrastructure/terraform
+
       - name: Install Terraform
         run: |
           sudo apt-get update && sudo apt-get install -y wget unzip
           wget https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
           unzip terraform_1.5.0_linux_amd64.zip
           sudo mv terraform /usr/local/bin/
+
+      - name: Verify Terraform Directory
+        run: |
+          if [ ! -d "./infrastructure/terraform" ]; then
+            echo "Error: Directory ./infrastructure/terraform does not exist."
+            exit 1
+          fi
+
+      - name: Initialize Terraform
+        run: |
+          terraform -chdir=./infrastructure/terraform init
 
       - name: Get Terraform Outputs
         id: tf-outputs
@@ -174,12 +219,29 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
+      - name: Download Terraform Directory
+        uses: actions/download-artifact@v3
+        with:
+          name: terraform-directory
+          path: ./infrastructure/terraform
+
       - name: Install Terraform
         run: |
           sudo apt-get update && sudo apt-get install -y wget unzip
           wget https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
           unzip terraform_1.5.0_linux_amd64.zip
           sudo mv terraform /usr/local/bin/
+
+      - name: Verify Terraform Directory
+        run: |
+          if [ ! -d "./infrastructure/terraform" ]; then
+            echo "Error: Directory ./infrastructure/terraform does not exist."
+            exit 1
+          fi
+
+      - name: Initialize Terraform
+        run: |
+          terraform -chdir=./infrastructure/terraform init
 
       - name: Get Terraform Outputs
         id: tf-outputs
