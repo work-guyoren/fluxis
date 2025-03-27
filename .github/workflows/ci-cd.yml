@@ -206,6 +206,17 @@ jobs:
           ECS_CLUSTER_ID=$(terraform -chdir=./infrastructure/terraform output -raw ecs_cluster_id)
           echo "ECS_CLUSTER_ID=$ECS_CLUSTER_ID" >> $GITHUB_ENV
 
+      - name: Verify ECS Service
+        run: |
+          SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-1-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
+          if [ -z "$SERVICE_EXISTS" ]; then
+            echo "ECS service microservice-1-service not found. Creating service..."
+            envsubst < ./infrastructure/aws/ecs/ecs-service-microservice-1.json > service-config.json
+            aws ecs create-service --cli-input-json file://service-config.json --region us-east-2
+          else
+            echo "ECS service microservice-1-service already exists."
+          fi
+
       - name: Deploy to ECS
         run: |
           aws ecs update-service --cluster $ECS_CLUSTER_ID \
@@ -256,6 +267,22 @@ jobs:
         run: |
           ECS_CLUSTER_ID=$(terraform -chdir=./infrastructure/terraform output -raw ecs_cluster_id)
           echo "ECS_CLUSTER_ID=$ECS_CLUSTER_ID" >> $GITHUB_ENV
+
+      - name: Verify ECS Service
+        run: |
+          SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-2-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
+          if [ -z "$SERVICE_EXISTS" ]; then
+            echo "ECS service microservice-2-service not found. Creating service..."
+            aws ecs create-service --cluster $ECS_CLUSTER_ID \
+              --service-name microservice-2-service \
+              --task-definition ${ECR_URL_MICROSERVICE_2}:latest \
+              --desired-count 1 \
+              --launch-type FARGATE \
+              --network-configuration "awsvpcConfiguration={subnets=[${SUBNETS}],securityGroups=[${SECURITY_GROUPS}],assignPublicIp=ENABLED}" \
+              --region us-east-2
+          else
+            echo "ECS service microservice-2-service already exists."
+          fi
 
       - name: Deploy to ECS
         run: |
