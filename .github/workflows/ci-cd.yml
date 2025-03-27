@@ -166,7 +166,10 @@ jobs:
     needs: build-microservice-1
     steps:
       - name: Print Working Directory
-        run: pwd && ls -l */*/
+        run: pwd && ls -l
+
+      - name: Figure out where the files are
+        run: tree
         
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
