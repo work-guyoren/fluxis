@@ -27,3 +27,8 @@ output "s3_bucket_name" {
   description = "The name of the S3 bucket"
   value       = module.s3.bucket_name
 }
+
+output "ecs_cluster_id" {
+  description = "The ECS cluster id"
+  value = module.ecs.ecs_cluster_id
+}
