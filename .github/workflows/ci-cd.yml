@@ -128,12 +128,6 @@ jobs:
           docker build -t $ECR_URL_MICROSERVICE_2:latest ./microservice-2
           aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $ECR_URL_MICROSERVICE_2
           docker push $ECR_URL_MICROSERVICE_2:latest
-      - name: Upload Terraform Directory
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-directory-${{ github.run_id }}
-          path: ./infrastructure/terraform
 
   # CD Jobs
   deploy-microservice-1:
