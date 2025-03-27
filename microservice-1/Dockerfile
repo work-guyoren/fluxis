@@ -9,13 +9,11 @@ WORKDIR /app
 RUN chown -R appuser:appuser /app
 
 COPY requirements.txt requirements.txt
-COPY requirements-test.txt requirements-test.txt
 
 # Switch to non-root user
 USER appuser
 
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir -r requirements-test.txt
 
 COPY . .
 
