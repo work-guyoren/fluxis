@@ -57,7 +57,7 @@ jobs:
       - name: Get Terraform Outputs
         id: tf-outputs
         run: |
-          ECR_URL_MICROSERVICE_1=$(terraform -chdir=./infrastructure/terraform output -raw microservice_1_ecr_url)
+          ECR_URL_MICROSERVICE_1=$(terraform -chdir=./infrastructure/terraform output -raw microservice_1_ecr_url | tr -d '\n')
           echo "ECR_URL_MICROSERVICE_1=$ECR_URL_MICROSERVICE_1" >> $GITHUB_ENV
       - name: Build and Push Docker Image
         run: |
@@ -121,7 +121,7 @@ jobs:
       - name: Get Terraform Outputs
         id: tf-outputs
         run: |
-          ECR_URL_MICROSERVICE_2=$(terraform -chdir=./infrastructure/terraform output -raw microservice_2_ecr_url)
+          ECR_URL_MICROSERVICE_2=$(terraform -chdir=./infrastructure/terraform output -raw microservice_2_ecr_url | tr -d '\n')
           echo "ECR_URL_MICROSERVICE_2=$ECR_URL_MICROSERVICE_2" >> $GITHUB_ENV
       - name: Build and Push Docker Image
         run: |
@@ -181,7 +181,8 @@ jobs:
           TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-1 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)
           if [ "$TASK_DEFINITION" == "None" ] || [ -z "$TASK_DEFINITION" ]; then
             echo "No task definition found for microservice-1. Creating a new one..."
-            aws ecs register-task-definition --cli-input-json file://infrastructure/aws/ecs/ecs-task-definition-microservice-1.json --region us-east-2
+            sed "s|<IMAGE>|$ECR_URL_MICROSERVICE_1:latest|g" infrastructure/aws/ecs/ecs-task-definition-microservice-1.json > task-def.json
+            aws ecs register-task-definition --cli-input-json file://task-def.json --region us-east-2
             TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-1 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)
           fi
           echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
@@ -250,7 +251,8 @@ jobs:
           TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-2 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)
           if [ "$TASK_DEFINITION" == "None" ] || [ -z "$TASK_DEFINITION" ]; then
             echo "No task definition found for microservice-2. Creating a new one..."
-            aws ecs register-task-definition --cli-input-json file://infrastructure/aws/ecs/ecs-task-definition-microservice-2.json --region us-east-2
+            sed "s|<IMAGE>|$ECR_URL_MICROSERVICE_2:latest|g" infrastructure/aws/ecs/ecs-task-definition-microservice-2.json > task-def.json
+            aws ecs register-task-definition --cli-input-json file://task-def.json --region us-east-2
             TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-2 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)
           fi
           echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV

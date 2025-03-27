@@ -8,11 +8,11 @@ class TestMicroservice2(unittest.TestCase):
     @patch('app.s3.put_object')
     @patch('app.sqs.delete_message')
     def test_message_processing(self, mock_delete, mock_put, mock_receive):
-        mock_receive.return_value = {
-            'Messages': [
-                {'Body': '{"key": "value"}', 'ReceiptHandle': 'handle1'}
-            ]
-        }
+        # Simulate receiving a message on the first call and no messages on subsequent calls
+        mock_receive.side_effect = [
+            {'Messages': [{'Body': '{"key": "value"}', 'ReceiptHandle': 'handle1'}]},
+            None  # No more messages
+        ]
         mock_put.return_value = {}
         mock_delete.return_value = {}
 
