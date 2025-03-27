@@ -31,7 +31,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: microservice-1-test-results
           path: test-results-microservice-1.log
@@ -89,7 +89,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: microservice-2-test-results
           path: test-results-microservice-2.log
