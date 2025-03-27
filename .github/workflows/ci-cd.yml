@@ -216,13 +216,14 @@ jobs:
         run: |
           TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-1 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)
           if [ -z "$TASK_DEFINITION" ]; then
-            echo "Error: No task definition found for microservice-1."
-            exit 1
-          fi
+            echo "Error: No task definition found for microservice-1."g a new one..."
+            exit 1s register-task-definition --cli-input-json file://infrastructure/aws/ecs/ecs-task-definition-microservice-1.json --region us-east-2
+          fiTASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-1 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)
           echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
-
+          echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
       - name: Verify ECS Service
         run: |
+          SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-1-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
           SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-1-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
           if [ -z "$SERVICE_EXISTS" ]; then
             echo "ECS service microservice-1-service not found. Creating service..."
@@ -298,28 +299,31 @@ jobs:
         run: |
           TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-2 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)
           if [ -z "$TASK_DEFINITION" ]; then
-            echo "Error: No task definition found for microservice-2."
-            exit 1
+            echo "No task definition found for microservice-2. Creating a new one..."
+            aws ecs register-task-definition --cli-input-json file://infrastructure/aws/ecs/ecs-task-definition-microservice-2.json --region us-east-2
+            TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-2 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-2 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)
           fi
-          echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
+          echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV          echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
 
-      - name: Verify ECS Service
+      - name: Verify ECS ServiceVerify ECS Service
         run: |
-          SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-2-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
+          SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-2-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)-services --cluster $ECS_CLUSTER_ID --services microservice-2-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
           if [ -z "$SERVICE_EXISTS" ]; then
             echo "ECS service microservice-2-service not found. Creating service..."
-            FILE_PATH="./infrastructure/aws/ecs/ecs-service-microservice-2.json"
+            FILE_PATH="./infrastructure/aws/ecs/ecs-service-microservice-2.json"s/ecs/ecs-service-microservice-2.json"
             if [ ! -f "$FILE_PATH" ]; then
-              echo "Error: Service definition file $FILE_PATH not found."
-              exit 1
+              echo "Error: Service definition file $FILE_PATH not found." Service definition file $FILE_PATH not found."
+              exit 1exit 1
             fi
             envsubst < "$FILE_PATH" > service-config.json
-            aws ecs create-service --cli-input-json file://service-config.json --region us-east-2
+            aws ecs create-service --cli-input-json file://service-config.json --region us-east-2s ecs create-service --cli-input-json file://service-config.json --region us-east-2
           else
-            echo "ECS service microservice-2-service already exists."
-          fi
+            echo "ECS service microservice-2-service already exists."rvice microservice-2-service already exists."
+          fi          fi
 
-      - name: Deploy to ECS
+      - name: Deploy to ECSDeploy to ECS
         run: |
           aws ecs update-service --cluster $ECS_CLUSTER_ID \
-            --service microservice-2-service --force-new-deployment
+            --service microservice-2-service --force-new-deployment            --service microservice-2-service --force-new-deployment
+
+

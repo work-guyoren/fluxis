@@ -1,7 +1,7 @@
 {
   "cluster": "${ECS_CLUSTER_ID}",
   "serviceName": "microservice-1-service",
-  "taskDefinition": "${ECR_URL_MICROSERVICE_1}:latest",
+  "taskDefinition": "${TASK_DEFINITION}",
   "desiredCount": 1,
   "launchType": "FARGATE",
   "networkConfiguration": {
