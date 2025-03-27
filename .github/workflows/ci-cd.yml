@@ -212,6 +212,15 @@ jobs:
           ECS_CLUSTER_ID=$(terraform -chdir=./infrastructure/terraform output -raw ecs_cluster_id)
           echo "ECS_CLUSTER_ID=$ECS_CLUSTER_ID" >> $GITHUB_ENV
 
+      - name: Verify Task Definition
+        run: |
+          TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-1 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)
+          if [ -z "$TASK_DEFINITION" ]; then
+            echo "Error: No task definition found for microservice-1."
+            exit 1
+          fi
+          echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
+
       - name: Verify ECS Service
         run: |
           SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-1-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
@@ -284,6 +293,15 @@ jobs:
         run: |
           ECS_CLUSTER_ID=$(terraform -chdir=./infrastructure/terraform output -raw ecs_cluster_id)
           echo "ECS_CLUSTER_ID=$ECS_CLUSTER_ID" >> $GITHUB_ENV
+
+      - name: Verify Task Definition
+        run: |
+          TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix microservice-2 --region us-east-2 --query "taskDefinitionArns[-1]" --output text)
+          if [ -z "$TASK_DEFINITION" ]; then
+            echo "Error: No task definition found for microservice-2."
+            exit 1
+          fi
+          echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
 
       - name: Verify ECS Service
         run: |
