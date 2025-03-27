@@ -1,10 +1,25 @@
 FROM python:3.9-slim
 
+# Set up a non-root user
+RUN useradd -m appuser
+
 WORKDIR /app
 
+# Ensure appuser owns the /app directory
+RUN chown -R appuser:appuser /app
+
 COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+COPY requirements-test.txt requirements-test.txt
+
+# Switch to non-root user
+USER appuser
+
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-test.txt
 
 COPY . .
+
+# Set default environment variables
+ENV PULL_INTERVAL=5
 
 CMD ["python", "app.py"]

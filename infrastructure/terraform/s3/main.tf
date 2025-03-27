@@ -23,7 +23,7 @@ resource "aws_s3_bucket_versioning" "main_bucket_versioning" {
   }
 }
 
-# Add a bucket policy to deny public read access
+# Add a bucket policy to deny all public access
 resource "aws_s3_bucket_policy" "main_bucket_policy" {
   bucket = aws_s3_bucket.main_bucket.id
 
@@ -31,11 +31,42 @@ resource "aws_s3_bucket_policy" "main_bucket_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "DenyPublicRead",
+        Sid       = "DenyPublicAccess",
         Effect    = "Deny",
         Principal = "*",
-        Action    = "s3:GetObject",
+        Action    = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject"
+        ],
         Resource  = "${aws_s3_bucket.main_bucket.arn}/*"
+      }
+    ]
+  })
+}
+
+# Add a bucket policy to allow ECS tasks to access the bucket
+resource "aws_s3_bucket_policy" "ecs_access_policy" {
+  bucket = aws_s3_bucket.main_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowECSAccess",
+        Effect    = "Allow",
+        Principal = {
+          AWS = "${module.ecs.ecs_task_role_arn}"
+        },
+        Action    = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ],
+        Resource  = [
+          "${aws_s3_bucket.main_bucket.arn}",
+          "${aws_s3_bucket.main_bucket.arn}/*"
+        ]
       }
     ]
   })

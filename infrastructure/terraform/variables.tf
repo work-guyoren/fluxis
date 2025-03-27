@@ -20,3 +20,9 @@ variable "subnets" {
   description = "The list of public subnets for the resources"
   type        = list(string)
 }
+
+variable "allowed_inbound_cidr" {
+  description = "The CIDR block allowed to access the ALB (e.g., 0.0.0.0/0 for public access)"
+  type        = string
+  default     = "0.0.0.0/0"
+}

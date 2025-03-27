@@ -17,11 +17,15 @@
       "environment": [
         {
           "name": "QUEUE_URL",
-          "value": "<your-sqs-queue-url>"
+          "value": "${SQS_QUEUE_URL}"
         },
         {
           "name": "TOKEN_PARAM_NAME",
           "value": "${SSM_PARAM_NAME}"
+        },
+        {
+          "name": "AWS_REGION",
+          "value": "us-east-2"
         }
       ]
     }
@@ -30,6 +34,6 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "<your-ecs-task-execution-role-arn>",
-  "taskRoleArn": "<your-ecs-task-role-arn>"
+  "executionRoleArn": "${ECS_TASK_EXECUTION_ROLE_ARN}",
+  "taskRoleArn": "${ECS_TASK_ROLE_ARN}"
 }

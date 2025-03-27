@@ -34,6 +34,7 @@ module "elb" {
   vpc_id                = var.vpc_id
   subnets               = var.subnets
   elb_security_group_id = module.ecs.ecs_task_sg_id
+  allowed_inbound_cidr  = var.allowed_inbound_cidr
 }
 
 module "ssm" {

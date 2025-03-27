@@ -12,3 +12,8 @@ output "microservice_2_target_group_arn" {
   description = "The ARN of the Target Group for Microservice 2"
   value       = aws_lb_target_group.microservice_2_tg.arn
 }
+
+output "alb_dns_name" {
+  description = "The DNS name of the Application Load Balancer"
+  value       = aws_lb.application_lb.dns_name
+}

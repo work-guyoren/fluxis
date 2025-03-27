@@ -22,7 +22,7 @@ resource "aws_lb_target_group" "microservice_1_tg" {
   target_type = "ip"
 
   health_check {
-    path                = "/"
+    path                = "/health"
     interval            = 30
     timeout             = 5
     healthy_threshold   = 2
@@ -43,7 +43,7 @@ resource "aws_lb_target_group" "microservice_2_tg" {
   target_type = "ip"
 
   health_check {
-    path                = "/"
+    path                = "/health"
     interval            = 30
     timeout             = 5
     healthy_threshold   = 2
@@ -74,6 +74,22 @@ resource "aws_lb_listener" "microservice_2_listener" {
   protocol          = "HTTP"
 
   default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.microservice_2_tg.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "microservice_2_rule" {
+  listener_arn = aws_lb_listener.microservice_2_listener.arn
+  priority     = 2
+
+  condition {
+    path_pattern {
+      values = ["/microservice-2/*"]
+    }
+  }
+
+  action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.microservice_2_tg.arn
   }

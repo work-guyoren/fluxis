@@ -17,3 +17,13 @@ output "microservice_2_ecr_url" {
   description = "The ECR URL for Microservice 2"
   value       = module.ecr.microservice_2_repository_url
 }
+
+output "sqs_queue_url" {
+  description = "The URL of the main SQS queue"
+  value       = module.sqs.main_queue_url
+}
+
+output "s3_bucket_name" {
+  description = "The name of the S3 bucket"
+  value       = module.s3.bucket_name
+}

@@ -3,12 +3,15 @@ import boto3
 import os
 import time
 from datetime import datetime
+import logging
 
 app = Flask(__name__)
 
+logging.basicConfig(level=logging.INFO)
+
 # AWS SQS and SSM clients
-sqs = boto3.client('sqs', region_name='us-east-1')
-ssm = boto3.client('ssm', region_name='us-east-1')
+sqs = boto3.client('sqs', region_name=os.getenv('AWS_REGION', 'us-east-2'))
+ssm = boto3.client('ssm', region_name=os.getenv('AWS_REGION', 'us-east-2'))
 
 # Environment variables
 QUEUE_URL = os.getenv('QUEUE_URL')
@@ -16,6 +19,7 @@ TOKEN_PARAM_NAME = os.getenv('TOKEN_PARAM_NAME')
 
 @app.route('/process', methods=['POST'])
 def process_request():
+    logging.info("Processing request...")
     try:
         # Parse JSON payload
         payload = request.json
@@ -49,6 +53,10 @@ def process_request():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'healthy'}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
