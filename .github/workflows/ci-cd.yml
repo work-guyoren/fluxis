@@ -165,6 +165,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-microservice-1
     steps:
+      - name: Print Working Directory
+        run: pwd
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -211,7 +213,12 @@ jobs:
           SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-1-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
           if [ -z "$SERVICE_EXISTS" ]; then
             echo "ECS service microservice-1-service not found. Creating service..."
-            envsubst < ./infrastructure/aws/ecs/ecs-service-microservice-1.json > service-config.json
+            FILE_PATH="./infrastructure/aws/ecs/ecs-service-microservice-1.json"
+            if [ ! -f "$FILE_PATH" ]; then
+              echo "Error: Service definition file $FILE_PATH not found."
+              exit 1
+            fi
+            envsubst < "$FILE_PATH" > service-config.json
             aws ecs create-service --cli-input-json file://service-config.json --region us-east-2
           else
             echo "ECS service microservice-1-service already exists."
@@ -227,6 +234,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-microservice-2
     steps:
+      - name: Print Working Directory
+        run: pwd
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -273,13 +282,13 @@ jobs:
           SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-2-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
           if [ -z "$SERVICE_EXISTS" ]; then
             echo "ECS service microservice-2-service not found. Creating service..."
-            aws ecs create-service --cluster $ECS_CLUSTER_ID \
-              --service-name microservice-2-service \
-              --task-definition ${ECR_URL_MICROSERVICE_2}:latest \
-              --desired-count 1 \
-              --launch-type FARGATE \
-              --network-configuration "awsvpcConfiguration={subnets=[${SUBNETS}],securityGroups=[${SECURITY_GROUPS}],assignPublicIp=ENABLED}" \
-              --region us-east-2
+            FILE_PATH="./infrastructure/aws/ecs/ecs-service-microservice-2.json"
+            if [ ! -f "$FILE_PATH" ]; then
+              echo "Error: Service definition file $FILE_PATH not found."
+              exit 1
+            fi
+            envsubst < "$FILE_PATH" > service-config.json
+            aws ecs create-service --cli-input-json file://service-config.json --region us-east-2
           else
             echo "ECS service microservice-2-service already exists."
           fi
