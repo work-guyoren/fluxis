@@ -26,7 +26,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          python -m unittest discover ./microservice-1/tests > test-results-microservice-1.log 2>&1
+          python3 -m unittest discover -s ./microservice-1/tests -p "*.py" > test-results-microservice-1.log 2>&1
 
       - name: Upload test results
         if: always()
@@ -83,7 +83,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          python -m unittest discover ./microservice-2/tests > test-results-microservice-2.log 2>&1
+          python3 -m unittest discover -s ./microservice-2/tests -p "*.py" > test-results-microservice-2.log 2>&1
 
       - name: Upload test results
         if: always()

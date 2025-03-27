@@ -1,4 +1,2 @@
 boto3
 flask
-unittest
-mock
