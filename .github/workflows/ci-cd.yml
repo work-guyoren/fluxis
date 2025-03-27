@@ -167,9 +167,6 @@ jobs:
     steps:
       - name: Print Working Directory
         run: pwd && ls -l
-
-      - name: Figure out where the files are
-        run: tree
         
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
@@ -213,11 +210,12 @@ jobs:
           echo "ECS_CLUSTER_ID=$ECS_CLUSTER_ID" >> $GITHUB_ENV
 
       - name: Verify ECS Service
+        working-directory: ./fluxis
         run: |
           SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-1-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
           if [ -z "$SERVICE_EXISTS" ]; then
             echo "ECS service microservice-1-service not found. Creating service..."
-            FILE_PATH="./fluxis/infrastructure/aws/ecs/ecs-service-microservice-1.json"
+            FILE_PATH="./infrastructure/aws/ecs/ecs-service-microservice-1.json"
             if [ ! -f "$FILE_PATH" ]; then
               echo "Error: Service definition file $FILE_PATH not found."
               exit 1
@@ -283,11 +281,12 @@ jobs:
           echo "ECS_CLUSTER_ID=$ECS_CLUSTER_ID" >> $GITHUB_ENV
 
       - name: Verify ECS Service
+        working-directory: ./fluxis
         run: |
           SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER_ID --services microservice-2-service --region us-east-2 --query "services[?status=='ACTIVE'].serviceName" --output text)
           if [ -z "$SERVICE_EXISTS" ]; then
             echo "ECS service microservice-2-service not found. Creating service..."
-            FILE_PATH="./fluxis/infrastructure/aws/ecs/ecs-service-microservice-2.json"
+            FILE_PATH="./infrastructure/aws/ecs/ecs-service-microservice-2.json"
             if [ ! -f "$FILE_PATH" ]; then
               echo "Error: Service definition file $FILE_PATH not found."
               exit 1
