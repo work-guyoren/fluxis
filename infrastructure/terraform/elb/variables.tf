@@ -13,13 +13,8 @@ variable "subnets" {
   type        = list(string)
 }
 
-variable "elb_security_group_id" {
-  description = "The security group ID for the ALB"
-  type        = string
-}
-
 variable "allowed_inbound_cidr" {
-  description = "The CIDR block allowed to access the ALB (e.g., 0.0.0.0/0 for public access)"
-  type        = string
-  default     = "0.0.0.0/0"
+  description = "The CIDR blocks allowed to access the ALB"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
 }

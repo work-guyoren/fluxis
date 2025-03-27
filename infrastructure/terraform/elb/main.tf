@@ -3,10 +3,34 @@ resource "aws_lb" "application_lb" {
   name               = "${var.environment}-application-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [var.elb_security_group_id]
+  security_groups    = [aws_security_group.elb_sg.id]
   subnets            = var.subnets
 
   enable_deletion_protection = false
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+resource "aws_security_group" "elb_sg" {
+  name        = "${var.environment}-elb-sg"
+  description = "Security group for the ELB"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 81
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_inbound_cidr
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   tags = {
     Environment = var.environment

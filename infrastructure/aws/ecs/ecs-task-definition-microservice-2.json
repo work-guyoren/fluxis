@@ -7,6 +7,13 @@
       "memory": 512,
       "cpu": 256,
       "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5001,
+          "hostPort": 5001,
+          "protocol": "tcp"
+        }
+      ],
       "environment": [
         {
           "name": "QUEUE_URL",

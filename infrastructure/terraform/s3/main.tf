@@ -56,7 +56,7 @@ resource "aws_s3_bucket_policy" "ecs_access_policy" {
         Sid       = "AllowECSAccess",
         Effect    = "Allow",
         Principal = {
-          AWS = "${module.ecs.ecs_task_role_arn}"
+          AWS = var.ecs_task_role_arn
         },
         Action    = [
           "s3:GetObject",

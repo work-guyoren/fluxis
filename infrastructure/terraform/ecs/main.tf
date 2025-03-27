@@ -79,12 +79,12 @@ resource "aws_security_group" "ecs_task_sg" {
   description = "Security group for ECS tasks"
   vpc_id      = var.vpc_id
 
-  # Allow inbound traffic from ALB
+  # Allow inbound traffic from ALB security group
   ingress {
-    from_port   = 5000
-    to_port     = 5001
-    protocol    = "tcp"
-    security_groups = [module.elb.elb_security_group_id]
+    from_port       = 5000
+    to_port         = 5001
+    protocol        = "tcp"
+    security_groups = [var.elb_security_group_id]  # Only from ELB
   }
 
   # Allow all outbound traffic to AWS services (S3, SQS, etc.)

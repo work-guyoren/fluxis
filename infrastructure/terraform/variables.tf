@@ -23,6 +23,6 @@ variable "subnets" {
 
 variable "allowed_inbound_cidr" {
   description = "The CIDR block allowed to access the ALB (e.g., 0.0.0.0/0 for public access)"
-  type        = string
-  default     = "0.0.0.0/0"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
 }

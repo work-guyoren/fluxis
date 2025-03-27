@@ -12,3 +12,8 @@ variable "subnets" {
   description = "The list of public subnets for ECS tasks"
   type        = list(string)
 }
+
+variable "elb_security_group_id" {
+  description = "The security group ID of the ELB"
+  type        = string
+}
