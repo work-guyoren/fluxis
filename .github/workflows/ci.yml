@@ -14,28 +14,34 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r ./microservice-1/requirements.txt
+
       - name: Run unit tests
         run: |
           set -o pipefail
-          PYTHONPATH=./microservice-1 python3 -m unittest discover -s ./microservice-1/tests -p "*.py" 2>&1 | tee test-results-microservice-1.log || true
+          PYTHONPATH=./microservice-1 python3 -m unittest discover -s ./microservice-1/tests -p "*.py" 2>&1 | tee test-results-microservice-1.log
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: microservice-1-test-results-${{ github.run_id }}
           path: test-results-microservice-1.log
+
       - name: Debug AWS Credentials
         run: |
           echo "AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}"
           echo "AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+
       - name: Verify AWS Credentials
         run: |
           if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ] || [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
@@ -43,6 +49,7 @@ jobs:
             exit 1
           fi
           echo "AWS credentials are present."
+
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -50,16 +57,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
           audience: sts.amazonaws.com
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
       - name: Get ECR Repository URL
         id: ecr-url
         run: |
           ECR_URL_MICROSERVICE_1=$(aws ecr describe-repositories --repository-names ${{ inputs.environment }}-microservice-1 --query 'repositories[0].repositoryUri' --output text)
           echo "ECR_URL_MICROSERVICE_1=$ECR_URL_MICROSERVICE_1" >> $GITHUB_ENV
+
       - name: Get Git Commit Hash
         id: git-info
         run: echo "GIT_COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
       - name: Build and Push Docker Image
         run: |
           docker build -t $ECR_URL_MICROSERVICE_1:latest -t $ECR_URL_MICROSERVICE_1:${{ env.GIT_COMMIT_HASH }} ./microservice-1
@@ -73,28 +84,34 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r ./microservice-2/requirements.txt
+
       - name: Run unit tests
         run: |
           set -o pipefail
-          PYTHONPATH=./microservice-2 python3 -m unittest discover -s ./microservice-2/tests -p "*.py" 2>&1 | tee test-results-microservice-2.log || true
+          PYTHONPATH=./microservice-2 python3 -m unittest discover -s ./microservice-2/tests -p "*.py" 2>&1 | tee test-results-microservice-2.log
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: microservice-2-test-results-${{ github.run_id }}
           path: test-results-microservice-2.log
+
       - name: Debug AWS Credentials
         run: |
           echo "AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}"
           echo "AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+
       - name: Verify AWS Credentials
         run: |
           if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ] || [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
@@ -102,6 +119,7 @@ jobs:
             exit 1
           fi
           echo "AWS credentials are present."
+
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -109,16 +127,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
           audience: sts.amazonaws.com
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
       - name: Get ECR Repository URL
         id: ecr-url
         run: |
           ECR_URL_MICROSERVICE_2=$(aws ecr describe-repositories --repository-names ${{ inputs.environment }}-microservice-2 --query 'repositories[0].repositoryUri' --output text)
           echo "ECR_URL_MICROSERVICE_2=$ECR_URL_MICROSERVICE_2" >> $GITHUB_ENV
+
       - name: Get Git Commit Hash
         id: git-info
         run: echo "GIT_COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
       - name: Build and Push Docker Image
         run: |
           docker build -t $ECR_URL_MICROSERVICE_2:latest -t $ECR_URL_MICROSERVICE_2:${{ env.GIT_COMMIT_HASH }} ./microservice-2

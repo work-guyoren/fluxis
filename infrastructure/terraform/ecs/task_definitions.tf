@@ -53,9 +53,13 @@ resource "aws_ecs_task_definition" "microservice_2" {
       memory    = 512
       cpu       = 256
       essential = true
+      portMappings = []
+      mountPoints = []
+      volumesFrom = []
+      systemControls = []
       environment = [
-        { name = "SQS_QUEUE_URL", value = var.sqs_queue_url },
-        { name = "S3_BUCKET_NAME", value = var.s3_bucket_name },
+        { name = "QUEUE_URL", value = var.sqs_queue_url },
+        { name = "BUCKET_NAME", value = var.s3_bucket_name },
       ]
       logConfiguration = {
         logDriver = "awslogs"
