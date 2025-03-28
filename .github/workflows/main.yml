@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  ENVIRONMENT: dev
+
 jobs:
   trigger-ci:
     name: Trigger CI Workflow
