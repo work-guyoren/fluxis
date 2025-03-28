@@ -32,7 +32,7 @@ on:
           - prod
 
 env:
-  ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
+  ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
 
 jobs:
   trigger-ci:
@@ -40,7 +40,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
     secrets: inherit
     with:
-      environment: ${{ env.ENVIRONMENT }}
+      environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
 
   trigger-cd:
     name: Trigger CD Workflow
@@ -48,4 +48,4 @@ jobs:
     uses: ./.github/workflows/cd.yml
     secrets: inherit
     with:
-      environment: ${{ env.ENVIRONMENT }}
+      environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
