@@ -18,7 +18,6 @@ resource "aws_ecs_task_definition" "microservice_1" {
       portMappings = [
         {
           containerPort = 5000
-          hostPort      = 5000
           protocol      = "tcp"
         }
       ]

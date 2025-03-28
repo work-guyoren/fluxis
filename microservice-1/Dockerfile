@@ -8,13 +8,20 @@ WORKDIR /app
 # Ensure appuser owns the /app directory
 RUN chown -R appuser:appuser /app
 
-COPY requirements.txt requirements.txt
+# Copy only requirements first to leverage Docker layer caching
+COPY requirements.txt /app/requirements.txt
 
 # Switch to non-root user
 USER appuser
 
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
+# Copy the rest of the application
 COPY . .
 
+# Expose the port the app runs on
+EXPOSE 5000
+
+# Command to run the application
 CMD ["python", "app.py"]

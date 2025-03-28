@@ -4,6 +4,7 @@ import os
 import time
 from datetime import datetime
 import logging
+from threading import Thread
 
 app = Flask(__name__)
 
@@ -16,6 +17,15 @@ ssm = boto3.client('ssm', region_name=os.getenv('AWS_REGION', 'us-east-2'))
 # Environment variables
 QUEUE_URL = os.getenv('QUEUE_URL')
 TOKEN_PARAM_NAME = os.getenv('TOKEN_PARAM_NAME')
+
+def log_heartbeat():
+    while True:
+        logging.info("App is up and running...")
+        time.sleep(10)
+
+# Start the heartbeat logging in a separate thread
+heartbeat_thread = Thread(target=log_heartbeat, daemon=True)
+heartbeat_thread.start()
 
 @app.route('/process', methods=['POST'])
 def process_request():

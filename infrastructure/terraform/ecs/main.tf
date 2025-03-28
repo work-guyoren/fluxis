@@ -101,7 +101,7 @@ resource "aws_security_group" "ecs_task_sg" {
 
   ingress {
     from_port       = 5000
-    to_port         = 5001
+    to_port         = 5000
     protocol        = "tcp"
     security_groups = [var.elb_security_group_id]  # Allow traffic from the ELB security group
   }
