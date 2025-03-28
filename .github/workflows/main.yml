@@ -4,21 +4,17 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'microservices/**'
-      - 'src/**'
-      - 'app/**'
-      - '!infrastructure/**'
-      - '!terraform/**'
+    paths-ignore:
+      - 'infrastructure/**'
+      - 'terraform/**'
+      - '**.md'
   pull_request:
     branches:
       - main
-    paths:
-      - 'microservices/**'
-      - 'src/**'
-      - 'app/**'
-      - '!infrastructure/**'
-      - '!terraform/**'
+    paths-ignore:
+      - 'infrastructure/**'
+      - 'terraform/**'
+      - '**.md'
   workflow_dispatch:
     inputs:
       environment:
@@ -35,6 +31,20 @@ env:
   ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
 
 jobs:
+  debug-trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Print trigger info
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "SHA: ${{ github.sha }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Changed files:"
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} || echo "Could not determine changed files"
+  
   trigger-ci:
     name: Trigger CI Workflow
     uses: ./.github/workflows/ci.yml
