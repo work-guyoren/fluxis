@@ -32,3 +32,23 @@ output "ecs_cluster_id" {
   description = "The ECS cluster id"
   value = module.ecs.ecs_cluster_id
 }
+
+output "microservice_1_task_definition_arn" {
+  description = "The ARN of the ECS task definition for Microservice 1"
+  value       = module.ecs.microservice_1_task_definition_arn
+}
+
+output "microservice_2_task_definition_arn" {
+  description = "The ARN of the ECS task definition for Microservice 2"
+  value       = module.ecs.microservice_2_task_definition_arn
+}
+
+output "microservice_1_service_name" {
+  description = "The name of the ECS service for Microservice 1"
+  value       = module.ecs.microservice_1_service_name
+}
+
+output "microservice_2_service_name" {
+  description = "The name of the ECS service for Microservice 2"
+  value       = module.ecs.microservice_2_service_name
+}

@@ -36,6 +36,13 @@ module "ecs" {
   vpc_id                = var.vpc_id
   subnets               = var.subnets
   elb_security_group_id = module.elb.elb_sg_id
+  microservice_1_image          = module.ecr.microservice_1_repository_url
+  microservice_2_image          = module.ecr.microservice_2_repository_url
+  sqs_queue_url                 = module.sqs.main_queue_url
+  s3_bucket_name                = module.s3.bucket_name
+  ssm_param_name                = module.ssm.ssm_parameter_name
+  microservice_1_target_group_arn = module.elb.microservice_1_target_group_arn
+  microservice_2_target_group_arn = module.elb.microservice_2_target_group_arn
 }
 
 module "ssm" {
