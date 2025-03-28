@@ -34,6 +34,14 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
+          audience: sts.amazonaws.com
+        env:
+          pythonLocation: /opt/hostedtoolcache/Python/3.9.21/x64
+          PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.9.21/x64/lib/pkgconfig
+          Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
+          Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
+          Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
+          LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.9.21/x64/lib
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Get ECR Repository URL
@@ -81,6 +89,14 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
+          audience: sts.amazonaws.com
+        env:
+          pythonLocation: /opt/hostedtoolcache/Python/3.9.21/x64
+          PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.9.21/x64/lib/pkgconfig
+          Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
+          Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
+          Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
+          LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.9.21/x64/lib
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Get ECR Repository URL
