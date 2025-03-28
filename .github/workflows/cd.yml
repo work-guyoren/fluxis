@@ -28,7 +28,7 @@ jobs:
           echo "Fetching ECS Cluster ID for environment: ${{ inputs.environment }}"
           echo "Debug: Listing all ECS clusters in region us-east-2"
           aws ecs list-clusters --output json
-          ECS_CLUSTER_ID=$(aws ecs list-clusters --query "clusterArns[?starts_with(@, 'arn:aws:ecs:us-east-2:*:cluster/${{ inputs.environment }}')]" --output text)
+          ECS_CLUSTER_ID=$(aws ecs list-clusters --query "clusterArns[?contains(@, '${{ inputs.environment }}')]" --output text)
           if [ -z "$ECS_CLUSTER_ID" ]; then
             echo "Error: ECS Cluster ID not found for environment: ${{ inputs.environment }}"
             echo "Ensure the cluster exists, the name matches, and the region is correct."
@@ -61,7 +61,7 @@ jobs:
           echo "Fetching ECS Cluster ID for environment: ${{ inputs.environment }}"
           echo "Debug: Listing all ECS clusters in region us-east-2"
           aws ecs list-clusters --output json
-          ECS_CLUSTER_ID=$(aws ecs list-clusters --query "clusterArns[?starts_with(@, 'arn:aws:ecs:us-east-2:*:cluster/${{ inputs.environment }}')]" --output text)
+          ECS_CLUSTER_ID=$(aws ecs list-clusters --query "clusterArns[?contains(@, '${{ inputs.environment }}')]" --output text)
           if [ -z "$ECS_CLUSTER_ID" ]; then
             echo "Error: ECS Cluster ID not found for environment: ${{ inputs.environment }}"
             echo "Ensure the cluster exists, the name matches, and the region is correct."
