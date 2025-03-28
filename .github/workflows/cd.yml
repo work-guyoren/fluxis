@@ -22,12 +22,18 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
-      - name: Fetch ECS Cluster ID
+      - name: Fetch Shared ECS Cluster ID
         id: fetch-cluster-id
         run: |
-          ECS_CLUSTER_ID=$(aws ecs list-clusters --query "clusterArns[?contains(@, 'microservice-1-cluster')]" --output text)
+          echo "Fetching ECS Cluster ID for environment: ${{ inputs.environment }}"
+          ECS_CLUSTER_ID=$(aws ecs list-clusters --query "clusterArns[?starts_with(@, 'arn:aws:ecs:us-east-2:*:cluster/${{ inputs.environment }}')]" --output text)
+          if [ -z "$ECS_CLUSTER_ID" ]; then
+            echo "Error: ECS Cluster ID not found for environment: ${{ inputs.environment }}"
+            exit 1
+          fi
           echo "ECS_CLUSTER_ID=$ECS_CLUSTER_ID" >> $GITHUB_ENV
-      - name: Deploy to ECS
+          echo "ECS Cluster ID: $ECS_CLUSTER_ID"
+      - name: Deploy Microservice 1 to ECS
         run: |
           aws ecs update-service --cluster $ECS_CLUSTER_ID \
             --service ${{ inputs.environment }}-microservice-1-service --force-new-deployment
@@ -46,12 +52,18 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
-      - name: Fetch ECS Cluster ID
+      - name: Fetch Shared ECS Cluster ID
         id: fetch-cluster-id
         run: |
-          ECS_CLUSTER_ID=$(aws ecs list-clusters --query "clusterArns[?contains(@, 'microservice-2-cluster')]" --output text)
+          echo "Fetching ECS Cluster ID for environment: ${{ inputs.environment }}"
+          ECS_CLUSTER_ID=$(aws ecs list-clusters --query "clusterArns[?starts_with(@, 'arn:aws:ecs:us-east-2:*:cluster/${{ inputs.environment }}')]" --output text)
+          if [ -z "$ECS_CLUSTER_ID" ]; then
+            echo "Error: ECS Cluster ID not found for environment: ${{ inputs.environment }}"
+            exit 1
+          fi
           echo "ECS_CLUSTER_ID=$ECS_CLUSTER_ID" >> $GITHUB_ENV
-      - name: Deploy to ECS
+          echo "ECS Cluster ID: $ECS_CLUSTER_ID"
+      - name: Deploy Microservice 2 to ECS
         run: |
           aws ecs update-service --cluster $ECS_CLUSTER_ID \
             --service ${{ inputs.environment }}-microservice-2-service --force-new-deployment
