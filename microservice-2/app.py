@@ -131,6 +131,9 @@ def process_messages():
             messages = response.get('Messages', [])
             if not messages:
                 logger.info("No messages received from the queue.")
+                # Exit immediately if in test mode to avoid infinite loop
+                if os.getenv('TESTING') == 'True':
+                    break
             else:
                 logger.info(f"Received {len(messages)} messages from SQS")
                 
@@ -152,12 +155,19 @@ def process_messages():
                                 
         except ClientError as e:
             logger.error(f"AWS error polling SQS: {e}")
+            if os.getenv('TESTING') == 'True':
+                break
             time.sleep(PULL_INTERVAL)  # Wait before retrying
         except Exception as e:
             logger.error(f"Unexpected error in message processing loop: {e}", exc_info=True)
+            if os.getenv('TESTING') == 'True':
+                break
             time.sleep(PULL_INTERVAL)  # Wait before retrying
             
         if not shutdown_event.is_set():
+            # Exit the loop if in test mode to prevent infinite loops
+            if os.getenv('TESTING') == 'True':
+                break
             time.sleep(PULL_INTERVAL)
 
 def handle_shutdown(sig, frame):

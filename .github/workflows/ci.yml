@@ -32,8 +32,11 @@ jobs:
           export QUEUE_URL="test-queue-url"
           export TOKEN_PARAM_NAME="test-token-param"
           export AWS_REGION="us-east-2"
+          export TESTING="True"
           
-          PYTHONPATH=./microservice-1 python3 -m unittest discover -s ./microservice-1/tests -p "*.py" 2>&1 | tee test-results-microservice-1.log
+          cd ./microservice-1
+          python -m unittest discover -s tests -p "*.py" 2>&1 | tee ../test-results-microservice-1.log
+          cd ..
 
       - name: Upload test results
         if: always()
@@ -107,8 +110,11 @@ jobs:
           export QUEUE_URL="test-queue-url"
           export BUCKET_NAME="test-bucket"
           export AWS_REGION="us-east-2"
+          export TESTING="True"
           
-          PYTHONPATH=./microservice-2 python3 -m unittest discover -s ./microservice-2/tests -p "*.py" 2>&1 | tee test-results-microservice-2.log
+          cd ./microservice-2
+          python -m unittest discover -s tests -p "*.py" 2>&1 | tee ../test-results-microservice-2.log
+          cd ..
 
       - name: Upload test results
         if: always()
@@ -119,8 +125,8 @@ jobs:
 
       - name: Debug AWS Credentials
         run: |
-          echo "AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}"
-          echo "AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          echo "AWS_ACCESS_KEY_ID exists: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}"
+          echo "AWS_SECRET_ACCESS_KEY exists: ${{ secrets.AWS_SECRET_ACCESS_KEY != '' }}"
 
       - name: Verify AWS Credentials
         run: |

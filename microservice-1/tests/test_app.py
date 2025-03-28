@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import os
+import json
 
 # Mock the environment variables before importing app
 os.environ['QUEUE_URL'] = 'mock-queue-url'
@@ -12,31 +13,49 @@ from app import app
 class TestMicroservice1(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
+        # Configure the app for testing
+        app.config['TESTING'] = True
 
     @patch('app.ssm.get_parameter')
-    def test_token_validation(self, mock_ssm):
+    @patch('app.sqs.send_message')
+    def test_token_validation(self, mock_sqs, mock_ssm):
         """
         Test that the API validates authentication tokens correctly.
         It should return 401 Unauthorized when an invalid token is provided.
         """
-        mock_ssm.return_value = {'Parameter': {'Value': os.getenv('TOKEN_PARAM_NAME', 'valid-token')}}
+        # Mock the SSM parameter store response
+        mock_ssm.return_value = {'Parameter': {'Value': 'valid-token'}}
+        mock_sqs.return_value = {}
+
         response = self.client.post('/', json={
             'token': 'invalid-token',
-            'data': {}
+            'data': {
+                'email_subject': 'Test',
+                'email_sender': 'test@example.com',
+                'email_timestream': '1234567890',
+                'email_content': 'Hello World'
+            }
         })
         self.assertEqual(response.status_code, 401)
+        self.assertIn('Invalid token', response.json.get('error', ''))
 
-    def test_missing_fields(self):
+    @patch('app.ssm.get_parameter')
+    @patch('app.sqs.send_message')
+    def test_missing_fields(self, mock_sqs, mock_ssm):
         """
         Test that the API properly validates required fields in the request payload.
         It should return 400 Bad Request when required fields are missing.
         """
+        # Mock the SSM parameter store response
+        mock_ssm.return_value = {'Parameter': {'Value': 'valid-token'}}
+        mock_sqs.return_value = {}
+
         response = self.client.post('/', json={
             'token': 'valid-token',
             'data': {'email_subject': 'Test'}
         })
         self.assertEqual(response.status_code, 400)
-        self.assertIn('Missing required fields', response.json['error'])
+        self.assertIn('Missing required fields', response.json.get('error', ''))
 
     @patch('app.sqs.send_message')
     @patch('app.ssm.get_parameter')
@@ -48,6 +67,7 @@ class TestMicroservice1(unittest.TestCase):
         """
         mock_ssm.return_value = {'Parameter': {'Value': 'valid-token'}}
         mock_sqs.return_value = {}
+        
         response = self.client.post('/', json={
             'token': 'valid-token',
             'data': {

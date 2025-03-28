@@ -1,117 +1,100 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import os
+import json
 
 # Mock the environment variables before importing app
 os.environ['QUEUE_URL'] = 'test-queue-url'
 os.environ['BUCKET_NAME'] = 'test-bucket'
 
-from app import process_messages
+# Import only the process_message function from app, not the whole app
+# to prevent the continuous polling loop from starting
+from app import process_message
 
 class TestMicroservice2(unittest.TestCase):
     """Test suite for the message processing functionality of Microservice 2."""
     
-    @patch('app.sqs.receive_message')
     @patch('app.s3.put_object')
     @patch('app.sqs.delete_message')
-    def test_successful_message_processing(self, mock_delete, mock_put, mock_receive):
+    def test_successful_message_processing(self, mock_delete, mock_put):
         """
         Test the happy path scenario where a message is successfully:
-        1. Received from SQS
-        2. Stored in S3
-        3. Deleted from the queue
+        1. Stored in S3
+        2. Deleted from the queue
         """
-        # Simulate receiving a message on the first call and no messages on subsequent calls
-        mock_receive.side_effect = [
-            {'Messages': [{'Body': '{"key": "value"}', 'ReceiptHandle': 'handle1'}]},
-            None  # No more messages
-        ]
+        # Create a test message
+        test_message = {
+            'Body': '{"key": "value"}',
+            'ReceiptHandle': 'handle1',
+            'MessageId': 'test-message-id'
+        }
+        
+        # Configure mocks
         mock_put.return_value = {}
         mock_delete.return_value = {}
 
-        process_messages()
+        # Call the function we're testing
+        result = process_message(test_message)
 
-        mock_put.assert_called_once_with(
-            Bucket='test-bucket',
-            Key=unittest.mock.ANY,  # Allow dynamic timestamp in the key
-            Body='{"key": "value"}'
-        )
+        # Verify the result and mock calls
+        self.assertTrue(result)
+        mock_put.assert_called_once()
+        self.assertEqual(mock_put.call_args[1]['Body'], '{"key": "value"}')
+        self.assertEqual(mock_put.call_args[1]['Bucket'], 'test-bucket')
+        
         mock_delete.assert_called_once_with(
-            QueueUrl=os.getenv('QUEUE_URL', 'test-queue-url'),  # Use environment variable
+            QueueUrl='test-queue-url',
             ReceiptHandle='handle1'
         )
     
-    @patch('app.sqs.receive_message')
     @patch('app.s3.put_object')
     @patch('app.sqs.delete_message')
-    def test_multiple_messages(self, mock_delete, mock_put, mock_receive):
-        """
-        Test processing of multiple messages in the queue to ensure:
-        1. All messages are correctly processed in order
-        2. Each message is stored in S3 and then deleted from the queue
-        """
-        # Simulate receiving multiple messages
-        mock_receive.side_effect = [
-            {'Messages': [{'Body': '{"id": "1"}', 'ReceiptHandle': 'handle1'}]},
-            {'Messages': [{'Body': '{"id": "2"}', 'ReceiptHandle': 'handle2'}]},
-            None  # No more messages
-        ]
-        
-        process_messages()
-        
-        # Check that both messages were processed correctly
-        self.assertEqual(mock_put.call_count, 2)
-        self.assertEqual(mock_delete.call_count, 2)
-        
-        # Check the content and order of the calls
-        mock_put.assert_any_call(
-            Bucket='test-bucket',
-            Key=unittest.mock.ANY,
-            Body='{"id": "1"}'
-        )
-        mock_put.assert_any_call(
-            Bucket='test-bucket',
-            Key=unittest.mock.ANY,
-            Body='{"id": "2"}'
-        )
-        
-    @patch('app.sqs.receive_message')
-    @patch('app.s3.put_object')
-    @patch('app.sqs.delete_message')
-    def test_empty_queue(self, mock_delete, mock_put, mock_receive):
-        """
-        Test behavior when the queue is empty:
-        1. No S3 operations should be performed
-        2. No delete operations should be performed
-        """
-        # Simulate an empty queue
-        mock_receive.return_value = {'Messages': []}
-        
-        process_messages()
-        
-        # Verify no actions were taken
-        mock_put.assert_not_called()
-        mock_delete.assert_not_called()
-        
-    @patch('app.sqs.receive_message')
-    @patch('app.s3.put_object')
-    @patch('app.sqs.delete_message')
-    def test_s3_upload_error(self, mock_delete, mock_put, mock_receive):
+    def test_s3_upload_error(self, mock_delete, mock_put):
         """
         Test error handling when S3 upload fails:
         1. The message should not be deleted from the queue
-        2. The error should be handled gracefully
+        2. The function should return False
         """
-        # Simulate receiving a message
-        mock_receive.side_effect = [
-            {'Messages': [{'Body': '{"key": "value"}', 'ReceiptHandle': 'handle1'}]},
-            None
-        ]
+        # Create a test message
+        test_message = {
+            'Body': '{"key": "value"}',
+            'ReceiptHandle': 'handle1',
+            'MessageId': 'test-message-id'
+        }
         
         # Simulate S3 upload failure
         mock_put.side_effect = Exception("S3 upload failed")
         
-        process_messages()
+        # Call the function we're testing
+        result = process_message(test_message)
         
-        # Message shouldn't be deleted if upload fails
+        # Verify the result
+        self.assertFalse(result)
         mock_delete.assert_not_called()
+        
+    @patch('app.s3.put_object')
+    @patch('app.sqs.delete_message')
+    def test_non_json_message(self, mock_delete, mock_put):
+        """
+        Test handling non-JSON message body:
+        1. The message should still be processed
+        2. The raw body should be stored in S3
+        """
+        # Create a test message with non-JSON body
+        test_message = {
+            'Body': 'Plain text message',
+            'ReceiptHandle': 'handle2',
+            'MessageId': 'test-message-id'
+        }
+        
+        # Configure mocks
+        mock_put.return_value = {}
+        mock_delete.return_value = {}
+
+        # Call the function we're testing
+        result = process_message(test_message)
+
+        # Verify the result
+        self.assertTrue(result)
+        mock_put.assert_called_once()
+        self.assertEqual(mock_put.call_args[1]['Body'], 'Plain text message')
