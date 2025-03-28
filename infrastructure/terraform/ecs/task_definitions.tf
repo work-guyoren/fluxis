@@ -26,6 +26,14 @@ resource "aws_ecs_task_definition" "microservice_1" {
         { name = "QUEUE_URL", value = var.sqs_queue_url },
         { name = "TOKEN_PARAM_NAME", value = var.ssm_param_name }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = "/ecs/${var.environment}-microservice-1"
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
     }
   ])
 }
@@ -51,6 +59,14 @@ resource "aws_ecs_task_definition" "microservice_2" {
         { name = "S3_BUCKET_NAME", value = var.s3_bucket_name },
         { name = "SSM_PARAM_NAME", value = var.ssm_param_name }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = "/ecs/${var.environment}-microservice-2"
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
     }
   ])
 

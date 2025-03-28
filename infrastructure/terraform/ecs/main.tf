@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 # Create an ECS cluster
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "${var.environment}-ecs-cluster"
@@ -27,6 +29,24 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   tags = {
     Environment = var.environment
   }
+}
+
+resource "aws_iam_role_policy" "ecs_task_execution_policy" {
+  name   = "ecs-task-execution-policy"
+  role   = aws_iam_role.ecs_task_execution_role.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/ecs/*"
+      }
+    ]
+  })
 }
 
 # Attach the Amazon ECS Task Execution Role Policy to the IAM role
@@ -79,15 +99,13 @@ resource "aws_security_group" "ecs_task_sg" {
   description = "Security group for ECS tasks"
   vpc_id      = var.vpc_id
 
-  # Allow inbound traffic from ALB security group
   ingress {
     from_port       = 5000
     to_port         = 5001
     protocol        = "tcp"
-    security_groups = [var.elb_security_group_id]  # Only from ELB
+    security_groups = [var.elb_security_group_id]  # Allow traffic from the ELB security group
   }
 
-  # Allow all outbound traffic to AWS services (S3, SQS, etc.)
   egress {
     from_port   = 0
     to_port     = 0

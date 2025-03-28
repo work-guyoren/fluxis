@@ -26,3 +26,9 @@ variable "allowed_inbound_cidr" {
   type        = list(string)
   default     = ["0.0.0.0/0"]
 }
+
+variable "aws_region" {
+  description = "The AWS region where resources will be created"
+  type        = string
+  default     = "us-east-2"
+}

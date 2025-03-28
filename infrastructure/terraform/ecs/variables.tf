@@ -47,3 +47,9 @@ variable "microservice_1_target_group_arn" {
   description = "The ARN of the target group for Microservice 1"
   type        = string
 }
+
+variable "aws_region" {
+  description = "The AWS region where resources will be created"
+  type        = string
+  default     = "us-east-2"
+}

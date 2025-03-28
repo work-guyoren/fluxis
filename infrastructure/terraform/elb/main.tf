@@ -23,14 +23,14 @@ resource "aws_security_group" "elb_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_inbound_cidr  # Allow traffic from specified CIDR blocks
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  # Allow all outbound traffic
   }
 
   tags = {
@@ -38,7 +38,7 @@ resource "aws_security_group" "elb_sg" {
   }
 }
 
-# Create a Target Group for Microservice 1
+# Update Target Group for Microservice 1
 resource "aws_lb_target_group" "microservice_1_tg" {
   name        = "${var.environment}-microservice-1-tg"
   port        = 5000
@@ -47,7 +47,6 @@ resource "aws_lb_target_group" "microservice_1_tg" {
   target_type = "ip"
 
   health_check {
-    path                = "/health"
     interval            = 30
     timeout             = 5
     healthy_threshold   = 2
@@ -59,10 +58,10 @@ resource "aws_lb_target_group" "microservice_1_tg" {
   }
 }
 
-# Create a Listener for Microservice 1
+# Update Listener for Microservice 1
 resource "aws_lb_listener" "microservice_1_listener" {
   load_balancer_arn = aws_lb.application_lb.arn
-  port              = 80
+  port              = 5000
   protocol          = "HTTP"
 
   default_action {
