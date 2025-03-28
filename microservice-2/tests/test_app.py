@@ -1,6 +1,11 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import os
+
+# Mock the environment variables before importing app
+os.environ['QUEUE_URL'] = 'test-queue-url'
+os.environ['BUCKET_NAME'] = 'test-bucket'
+
 from app import process_messages
 
 class TestMicroservice2(unittest.TestCase):

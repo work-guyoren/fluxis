@@ -28,6 +28,11 @@ jobs:
       - name: Run unit tests
         run: |
           set -o pipefail
+          # Set test environment variables
+          export QUEUE_URL="test-queue-url"
+          export TOKEN_PARAM_NAME="test-token-param"
+          export AWS_REGION="us-east-2"
+          
           PYTHONPATH=./microservice-1 python3 -m unittest discover -s ./microservice-1/tests -p "*.py" 2>&1 | tee test-results-microservice-1.log
 
       - name: Upload test results
@@ -98,6 +103,11 @@ jobs:
       - name: Run unit tests
         run: |
           set -o pipefail
+          # Set test environment variables
+          export QUEUE_URL="test-queue-url"
+          export BUCKET_NAME="test-bucket"
+          export AWS_REGION="us-east-2"
+          
           PYTHONPATH=./microservice-2 python3 -m unittest discover -s ./microservice-2/tests -p "*.py" 2>&1 | tee test-results-microservice-2.log
 
       - name: Upload test results

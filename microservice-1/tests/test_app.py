@@ -1,6 +1,12 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import os
+
+# Mock the environment variables before importing app
+os.environ['QUEUE_URL'] = 'mock-queue-url'
+os.environ['TOKEN_PARAM_NAME'] = 'mock-token-param'
+
+# Now import the app after environment variables are set
 from app import app
 
 class TestMicroservice1(unittest.TestCase):
