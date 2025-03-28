@@ -32,6 +32,13 @@ jobs:
         run: |
           echo "AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}"
           echo "AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+      - name: Verify AWS Credentials
+        run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ] || [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "Error: AWS credentials are missing."
+            exit 1
+          fi
+          echo "AWS credentials are present."
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -84,6 +91,13 @@ jobs:
         run: |
           echo "AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}"
           echo "AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+      - name: Verify AWS Credentials
+        run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ] || [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "Error: AWS credentials are missing."
+            exit 1
+          fi
+          echo "AWS credentials are present."
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:

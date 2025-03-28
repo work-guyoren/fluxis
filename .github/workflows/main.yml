@@ -9,12 +9,10 @@ jobs:
   trigger-ci:
     name: Trigger CI Workflow
     uses: ./.github/workflows/ci.yml
-    # with: # Optional inputs if defined in ci.yml
-      # ...inputs if any...
+    secrets: inherit
 
   trigger-cd:
     name: Trigger CD Workflow
     needs: trigger-ci
     uses: ./.github/workflows/cd.yml
-    # with: # Optional inputs if defined in cd.yml
-      # ...inputs if any...
+    secrets: inherit
