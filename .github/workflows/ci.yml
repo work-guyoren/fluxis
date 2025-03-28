@@ -51,7 +51,7 @@ jobs:
       - name: Get ECR Repository URL
         id: ecr-url
         run: |
-          ECR_URL_MICROSERVICE_1=$(aws ecr describe-repositories --repository-names $ENVIRONMENT-microservice-1 --query 'repositories[0].repositoryUri' --output text)
+          ECR_URL_MICROSERVICE_1=$(aws ecr describe-repositories --repository-names ${{ env.ENVIRONMENT }}-microservice-1 --query 'repositories[0].repositoryUri' --output text)
           echo "ECR_URL_MICROSERVICE_1=$ECR_URL_MICROSERVICE_1" >> $GITHUB_ENV
       - name: Get Git Commit Hash
         id: git-info
@@ -110,7 +110,7 @@ jobs:
       - name: Get ECR Repository URL
         id: ecr-url
         run: |
-          ECR_URL_MICROSERVICE_2=$(aws ecr describe-repositories --repository-names $ENVIRONMENT-microservice-2 --query 'repositories[0].repositoryUri' --output text)
+          ECR_URL_MICROSERVICE_2=$(aws ecr describe-repositories --repository-names ${{ env.ENVIRONMENT }}-microservice-2 --query 'repositories[0].repositoryUri' --output text)
           echo "ECR_URL_MICROSERVICE_2=$ECR_URL_MICROSERVICE_2" >> $GITHUB_ENV
       - name: Get Git Commit Hash
         id: git-info

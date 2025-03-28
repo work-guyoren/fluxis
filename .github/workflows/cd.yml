@@ -26,7 +26,7 @@ jobs:
       - name: Deploy to ECS
         run: |
           aws ecs update-service --cluster $ECS_CLUSTER_ID \
-            --service $ENVIRONMENT-microservice-1-service --force-new-deployment
+            --service ${{ env.ENVIRONMENT }}-microservice-1-service --force-new-deployment
 
   deploy-microservice-2:
     name: Deploy Microservice 2
@@ -50,4 +50,4 @@ jobs:
       - name: Deploy to ECS
         run: |
           aws ecs update-service --cluster $ECS_CLUSTER_ID \
-            --service $ENVIRONMENT-microservice-2-service --force-new-deployment
+            --service ${{ env.ENVIRONMENT }}-microservice-2-service --force-new-deployment
