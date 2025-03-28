@@ -20,6 +20,11 @@ TOKEN_PARAM_NAME = os.getenv('TOKEN_PARAM_NAME')
 @app.route('/process', methods=['POST'])
 def process_request():
     logging.info("Processing request...")
+
+    # Log the original client IP from the load balancer
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    logging.info(f"Request received from client IP: {client_ip}")
+
     try:
         # Parse JSON payload
         payload = request.json
@@ -29,12 +34,14 @@ def process_request():
         # Validate token
         stored_token = ssm.get_parameter(Name=TOKEN_PARAM_NAME, WithDecryption=True)['Parameter']['Value']
         if token != stored_token:
+            logging.warning("Invalid token provided.")
             return jsonify({'error': 'Invalid token'}), 401
 
         # Validate required fields in data
         required_fields = ['email_subject', 'email_sender', 'email_timestream', 'email_content']
         missing_fields = [field for field in required_fields if field not in data]
         if missing_fields:
+            logging.warning(f"Missing required fields: {', '.join(missing_fields)}")
             return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
 
         # Validate email_timestream
@@ -43,15 +50,19 @@ def process_request():
             # Ensure the timestamp is valid and not in the future
             email_timestamp = int(email_timestream)
             if email_timestamp > int(time.time()):
+                logging.warning("email_timestream is in the future.")
                 return jsonify({'error': 'email_timestream cannot be in the future'}), 400
         except (ValueError, TypeError):
+            logging.warning("Invalid email_timestream format.")
             return jsonify({'error': 'Invalid email_timestream format'}), 400
 
         # Publish to SQS
         sqs.send_message(QueueUrl=QUEUE_URL, MessageBody=str(data))
+        logging.info("Message successfully published to SQS.")
         return jsonify({'message': 'Message published to SQS'}), 200
 
     except Exception as e:
+        logging.error(f"An error occurred: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/health', methods=['GET'])

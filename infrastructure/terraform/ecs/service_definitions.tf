@@ -33,9 +33,7 @@ resource "aws_ecs_service" "microservice_2" {
     assign_public_ip = true
   }
 
-  load_balancer {
-    target_group_arn = var.microservice_2_target_group_arn
-    container_name   = "microservice-2-container"
-    container_port   = 5001
+  tags = {
+    Environment = var.environment
   }
 }

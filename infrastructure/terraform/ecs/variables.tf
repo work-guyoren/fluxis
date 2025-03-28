@@ -47,8 +47,3 @@ variable "microservice_1_target_group_arn" {
   description = "The ARN of the target group for Microservice 1"
   type        = string
 }
-
-variable "microservice_2_target_group_arn" {
-  description = "The ARN of the target group for Microservice 2"
-  type        = string
-}

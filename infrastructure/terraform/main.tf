@@ -43,7 +43,6 @@ module "ecs" {
   s3_bucket_name                = module.s3.bucket_name
   ssm_param_name                = module.ssm.ssm_parameter_name
   microservice_1_target_group_arn = module.elb.microservice_1_target_group_arn
-  microservice_2_target_group_arn = module.elb.microservice_2_target_group_arn
 }
 
 module "ssm" {

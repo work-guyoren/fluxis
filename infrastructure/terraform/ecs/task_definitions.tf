@@ -30,7 +30,6 @@ resource "aws_ecs_task_definition" "microservice_1" {
   ])
 }
 
-# Task definition for Microservice 2
 resource "aws_ecs_task_definition" "microservice_2" {
   family                   = "${var.environment}-microservice-2"
   network_mode             = "awsvpc"
@@ -47,18 +46,15 @@ resource "aws_ecs_task_definition" "microservice_2" {
       memory    = 512
       cpu       = 256
       essential = true
-      portMappings = [
-        {
-          containerPort = 5001
-          hostPort      = 5001
-          protocol      = "tcp"
-        }
-      ]
       environment = [
-        { name = "QUEUE_URL", value = var.sqs_queue_url },
-        { name = "BUCKET_NAME", value = var.s3_bucket_name },
-        { name = "PULL_INTERVAL", value = "5" }
+        { name = "SQS_QUEUE_URL", value = var.sqs_queue_url },
+        { name = "S3_BUCKET_NAME", value = var.s3_bucket_name },
+        { name = "SSM_PARAM_NAME", value = var.ssm_param_name }
       ]
     }
   ])
+
+  tags = {
+    Environment = var.environment
+  }
 }
