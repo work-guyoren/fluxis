@@ -36,37 +36,20 @@ jobs:
           aws-region: us-east-2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Install Terraform
+      - name: Get ECR Repository URL
+        id: ecr-url
         run: |
-          sudo apt-get update && sudo apt-get install -y wget unzip
-          wget https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
-          unzip terraform_1.5.0_linux_amd64.zip
-          sudo mv terraform /usr/local/bin/
-      - name: Verify Terraform Directory
-        run: |
-          if [ ! -d "./infrastructure/terraform" ]; then
-            echo "Error: Directory ./infrastructure/terraform does not exist."
-            exit 1
-          fi
-      - name: Initialize Terraform
-        run: |
-          terraform -chdir=./infrastructure/terraform init
-      - name: Get Terraform Outputs
-        id: tf-outputs
-        run: |
-          ECR_URL_MICROSERVICE_1=$(terraform -chdir=./infrastructure/terraform output -raw microservice_1_ecr_url | tr -d '\n' | tr -d ' ')
+          ECR_URL_MICROSERVICE_1=$(aws ecr describe-repositories --repository-names microservice-1 --query 'repositories[0].repositoryUri' --output text)
           echo "ECR_URL_MICROSERVICE_1=$ECR_URL_MICROSERVICE_1" >> $GITHUB_ENV
+      - name: Get Git Commit Hash
+        id: git-info
+        run: echo "GIT_COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       - name: Build and Push Docker Image
         run: |
-          docker build -t $ECR_URL_MICROSERVICE_1:latest ./microservice-1
+          docker build -t $ECR_URL_MICROSERVICE_1:latest -t $ECR_URL_MICROSERVICE_1:${{ env.GIT_COMMIT_HASH }} ./microservice-1
           aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $ECR_URL_MICROSERVICE_1
           docker push $ECR_URL_MICROSERVICE_1:latest
-      - name: Upload Terraform Directory
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-directory-${{ github.run_id }}
-          path: ./infrastructure/terraform
+          docker push $ECR_URL_MICROSERVICE_1:${{ env.GIT_COMMIT_HASH }}
 
   build-microservice-2:
     name: Build, Test, and Push Microservice 2
@@ -100,28 +83,17 @@ jobs:
           aws-region: us-east-2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Install Terraform
+      - name: Get ECR Repository URL
+        id: ecr-url
         run: |
-          sudo apt-get update && sudo apt-get install -y wget unzip
-          wget https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
-          unzip terraform_1.5.0_linux_amd64.zip
-          sudo mv terraform /usr/local/bin/
-      - name: Verify Terraform Directory
-        run: |
-          if [ ! -d "./infrastructure/terraform" ]; then
-            echo "Error: Directory ./infrastructure/terraform does not exist."
-            exit 1
-          fi
-      - name: Initialize Terraform
-        run: |
-          terraform -chdir=./infrastructure/terraform init
-      - name: Get Terraform Outputs
-        id: tf-outputs
-        run: |
-          ECR_URL_MICROSERVICE_2=$(terraform -chdir=./infrastructure/terraform output -raw microservice_2_ecr_url | tr -d '\n' | tr -d ' ')
+          ECR_URL_MICROSERVICE_2=$(aws ecr describe-repositories --repository-names microservice-2 --query 'repositories[0].repositoryUri' --output text)
           echo "ECR_URL_MICROSERVICE_2=$ECR_URL_MICROSERVICE_2" >> $GITHUB_ENV
+      - name: Get Git Commit Hash
+        id: git-info
+        run: echo "GIT_COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       - name: Build and Push Docker Image
         run: |
-          docker build -t $ECR_URL_MICROSERVICE_2:latest ./microservice-2
+          docker build -t $ECR_URL_MICROSERVICE_2:latest -t $ECR_URL_MICROSERVICE_2:${{ env.GIT_COMMIT_HASH }} ./microservice-2
           aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $ECR_URL_MICROSERVICE_2
           docker push $ECR_URL_MICROSERVICE_2:latest
+          docker push $ECR_URL_MICROSERVICE_2:${{ env.GIT_COMMIT_HASH }}

@@ -18,35 +18,15 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
-      - name: Download Terraform Directory
-        uses: actions/download-artifact@v4
-        with:
-          name: terraform-directory-${{ github.run_id }}
-          path: ./infrastructure/terraform
-      - name: Install Terraform
+      - name: Fetch ECS Cluster ID
+        id: fetch-cluster-id
         run: |
-          sudo apt-get update && sudo apt-get install -y wget unzip
-          wget https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
-          unzip terraform_1.5.0_linux_amd64.zip
-          sudo mv terraform /usr/local/bin/
-      - name: Verify Terraform Directory
-        run: |
-          if [ ! -d "./infrastructure/terraform" ]; then
-            echo "Error: Directory ./infrastructure/terraform does not exist."
-            exit 1
-          fi
-      - name: Initialize Terraform
-        run: |
-          terraform -chdir=./infrastructure/terraform init
-      - name: Get Terraform Outputs
-        id: tf-outputs
-        run: |
-          ECS_CLUSTER_ID=$(terraform -chdir=./infrastructure/terraform output -raw ecs_cluster_id)
+          ECS_CLUSTER_ID=$(aws ecs list-clusters --query "clusterArns[?contains(@, 'microservice-1-cluster')]" --output text)
           echo "ECS_CLUSTER_ID=$ECS_CLUSTER_ID" >> $GITHUB_ENV
       - name: Deploy to ECS
         run: |
           aws ecs update-service --cluster $ECS_CLUSTER_ID \
-            --service microservice-1-service --force-new-deployment
+            --service ${{ secrets.ENVIRONMENT }}-microservice-1-service --force-new-deployment
 
   deploy-microservice-2:
     name: Deploy Microservice 2
@@ -62,32 +42,12 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
-      - name: Download Terraform Directory
-        uses: actions/download-artifact@v4
-        with:
-          name: terraform-directory-${{ github.run_id }}
-          path: ./infrastructure/terraform
-      - name: Install Terraform
+      - name: Fetch ECS Cluster ID
+        id: fetch-cluster-id
         run: |
-          sudo apt-get update && sudo apt-get install -y wget unzip
-          wget https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
-          unzip terraform_1.5.0_linux_amd64.zip
-          sudo mv terraform /usr/local/bin/
-      - name: Verify Terraform Directory
-        run: |
-          if [ ! -d "./infrastructure/terraform" ]; then
-            echo "Error: Directory ./infrastructure/terraform does not exist."
-            exit 1
-          fi
-      - name: Initialize Terraform
-        run: |
-          terraform -chdir=./infrastructure/terraform init
-      - name: Get Terraform Outputs
-        id: tf-outputs
-        run: |
-          ECS_CLUSTER_ID=$(terraform -chdir=./infrastructure/terraform output -raw ecs_cluster_id)
+          ECS_CLUSTER_ID=$(aws ecs list-clusters --query "clusterArns[?contains(@, 'microservice-2-cluster')]" --output text)
           echo "ECS_CLUSTER_ID=$ECS_CLUSTER_ID" >> $GITHUB_ENV
       - name: Deploy to ECS
         run: |
           aws ecs update-service --cluster $ECS_CLUSTER_ID \
-            --service microservice-2-service --force-new-deployment
+            --service ${{ secrets.ENVIRONMENT }}-microservice-2-service --force-new-deployment
