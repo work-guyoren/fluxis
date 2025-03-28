@@ -27,7 +27,7 @@ def log_heartbeat():
 heartbeat_thread = Thread(target=log_heartbeat, daemon=True)
 heartbeat_thread.start()
 
-@app.route('/process', methods=['POST'])
+@app.route('/', methods=['POST'])
 def process_request():
     logging.info("Processing request...")
 

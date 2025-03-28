@@ -10,14 +10,14 @@ class TestMicroservice1(unittest.TestCase):
     @patch('app.ssm.get_parameter')
     def test_token_validation(self, mock_ssm):
         mock_ssm.return_value = {'Parameter': {'Value': os.getenv('TOKEN_PARAM_NAME', 'valid-token')}}
-        response = self.client.post('/process', json={
+        response = self.client.post('/', json={
             'token': 'invalid-token',
             'data': {}
         })
         self.assertEqual(response.status_code, 401)
 
     def test_missing_fields(self):
-        response = self.client.post('/process', json={
+        response = self.client.post('/', json={
             'token': 'valid-token',
             'data': {'email_subject': 'Test'}
         })
@@ -29,7 +29,7 @@ class TestMicroservice1(unittest.TestCase):
     def test_sqs_message_publishing(self, mock_ssm, mock_sqs):
         mock_ssm.return_value = {'Parameter': {'Value': 'valid-token'}}
         mock_sqs.return_value = {}
-        response = self.client.post('/process', json={
+        response = self.client.post('/', json={
             'token': 'valid-token',
             'data': {
                 'email_subject': 'Test',
