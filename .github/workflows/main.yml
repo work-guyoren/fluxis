@@ -13,9 +13,13 @@ jobs:
     name: Trigger CI Workflow
     uses: ./.github/workflows/ci.yml
     secrets: inherit
+    with:
+      environment: dev
 
   trigger-cd:
     name: Trigger CD Workflow
     needs: trigger-ci
     uses: ./.github/workflows/cd.yml
     secrets: inherit
+    with:
+      environment: dev
