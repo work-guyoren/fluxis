@@ -28,6 +28,10 @@ jobs:
         with:
           name: microservice-1-test-results-${{ github.run_id }}
           path: test-results-microservice-1.log
+      - name: Debug AWS Credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}"
+          echo "AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -35,13 +39,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
           audience: sts.amazonaws.com
-        env:
-          pythonLocation: /opt/hostedtoolcache/Python/3.9.21/x64
-          PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.9.21/x64/lib/pkgconfig
-          Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
-          Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
-          Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
-          LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.9.21/x64/lib
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Get ECR Repository URL
@@ -83,6 +80,10 @@ jobs:
         with:
           name: microservice-2-test-results-${{ github.run_id }}
           path: test-results-microservice-2.log
+      - name: Debug AWS Credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}"
+          echo "AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -90,13 +91,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
           audience: sts.amazonaws.com
-        env:
-          pythonLocation: /opt/hostedtoolcache/Python/3.9.21/x64
-          PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.9.21/x64/lib/pkgconfig
-          Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
-          Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
-          Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.21/x64
-          LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.9.21/x64/lib
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Get ECR Repository URL
