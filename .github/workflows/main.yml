@@ -10,9 +10,29 @@ on:
       - 'app/**'
       - '!infrastructure/**'
       - '!terraform/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'microservices/**'
+      - 'src/**'
+      - 'app/**'
+      - '!infrastructure/**'
+      - '!terraform/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
 
 env:
-  ENVIRONMENT: dev
+  ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
 
 jobs:
   trigger-ci:
@@ -20,7 +40,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
     secrets: inherit
     with:
-      environment: dev
+      environment: ${{ env.ENVIRONMENT }}
 
   trigger-cd:
     name: Trigger CD Workflow
@@ -28,4 +48,4 @@ jobs:
     uses: ./.github/workflows/cd.yml
     secrets: inherit
     with:
-      environment: dev
+      environment: ${{ env.ENVIRONMENT }}
