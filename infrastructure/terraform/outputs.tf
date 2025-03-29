@@ -57,3 +57,32 @@ output "alb_dns_name" {
   description = "The DNS name of the Application Load Balancer"
   value       = module.elb.alb_dns_name
 }
+
+output "cloudwatch_dashboard_name" {
+  description = "The name of the CloudWatch dashboard for microservices"
+  value       = module.monitoring.dashboard_name
+}
+
+output "cloudwatch_dashboard_url" {
+  description = "The URL to access the CloudWatch dashboard"
+  value       = "https://${var.aws_region}.console.aws.amazon.com/cloudwatch/home?region=${var.aws_region}#dashboards:name=${module.monitoring.dashboard_name}"
+}
+
+output "alarm_arns" {
+  description = "All CloudWatch alarm ARNs"
+  value = {
+    # ECS alarms
+    microservice_1_cpu = module.monitoring.microservice_1_cpu_alarm_arn
+    microservice_1_memory = module.monitoring.microservice_1_memory_alarm_arn
+    microservice_2_cpu = module.monitoring.microservice_2_cpu_alarm_arn
+    microservice_2_memory = module.monitoring.microservice_2_memory_alarm_arn
+    
+    # SQS alarms
+    sqs_queue_depth = module.monitoring.sqs_queue_depth_alarm_arn
+    sqs_message_age = module.monitoring.sqs_message_age_alarm_arn
+    dlq_messages = module.monitoring.dlq_messages_alarm_arn
+    
+    # ALB alarms
+    alb_5xx_errors = module.monitoring.alb_5xx_error_alarm_arn
+  }
+}

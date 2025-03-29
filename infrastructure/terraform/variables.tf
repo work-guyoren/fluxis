@@ -32,3 +32,9 @@ variable "aws_region" {
   type        = string
   default     = "us-east-2"
 }
+
+variable "alarm_sns_topic_arns" {
+  description = "List of SNS Topic ARNs to notify when CloudWatch alarms trigger"
+  type        = list(string)
+  default     = []
+}

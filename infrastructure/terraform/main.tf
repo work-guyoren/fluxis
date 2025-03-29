@@ -55,3 +55,29 @@ module "ecr" {
   source      = "./ecr"
   environment = var.environment
 }
+
+# Add CloudWatch monitoring module
+module "monitoring" {
+  source      = "./monitoring"
+  environment = var.environment
+  aws_region  = var.aws_region
+  
+  # Pass the ALB ARN suffix from the elb module
+  alb_arn_suffix = split("/", module.elb.alb_arn)[1]
+  
+  # Pass the Target Group ARN suffix
+  target_group_arn_suffix = split("/", module.elb.microservice_1_target_group_arn)[1]
+  
+  # Pass the SQS queue name - this ensures the dashboard is monitoring the actual queue created by Terraform
+  sqs_queue_name = "${var.environment}-main-queue"
+  
+  # Pass the Dead Letter Queue name
+  dlq_name = "${var.environment}-dlq"
+  
+  # Pass the S3 bucket name
+  s3_bucket_name = module.s3.bucket_name
+  
+  # Optional: Configure SNS topic ARNs for alarms if you have them
+  alarm_actions = var.alarm_sns_topic_arns
+  ok_actions    = var.alarm_sns_topic_arns
+}
