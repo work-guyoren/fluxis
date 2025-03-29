@@ -121,12 +121,33 @@ The CI/CD pipeline consists of three workflows:
 - **Microservice-1**: RESTful API that validates inputs and sends messages to SQS
 - **Microservice-2**: Background worker that processes SQS messages and stores them in S3
 
-## Trigger Microservices
+## Triggering Microservices via ALB
 
-# Subsitute the ALB DNS
-- curl -X POST <"ALB DNS"> \
+To test the microservices after deployment, you can send a request to Microservice-1 via the Application Load Balancer:
+
+```bash
+# Replace <ALB-DNS-URL> with your actual ALB DNS name from terraform output
+# This request includes the authentication token from your environment variables
+
+curl -X POST http://<ALB-DNS-URL> \
   -H "Content-Type: application/json" \
-  -d '{"data":{"email_subject":"Happy new year!","email_sender":"John Doe","email_timestream":"1693561101","email_content":"Just want to say... Happy new year!!!"},"token":"'"$TF_VAR_token_value"'"}'
+  -d '{
+    "token": "'"$TF_VAR_token_value"'",
+    "data": {
+      "email_subject": "Happy new year!",
+      "email_sender": "John Doe",
+      "email_timestream": "1693561101",
+      "email_content": "Just want to say... Happy new year!!!"
+    }
+  }'
+```
+
+Field descriptions:
+- `email_subject`: The subject line of the email
+- `email_sender`: The name of the person or entity sending the email
+- `email_timestream`: A timestamp (in Unix format) indicating when the email was created
+- `email_content`: The body content of the email message
+- `token`: A secure token used for authentication (should match the one in SSM)
 
 ## Development
 
