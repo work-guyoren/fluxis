@@ -52,3 +52,8 @@ output "microservice_2_service_name" {
   description = "The name of the ECS service for Microservice 2"
   value       = module.ecs.microservice_2_service_name
 }
+
+output "alb_dns_name" {
+  description = "The DNS name of the Application Load Balancer"
+  value       = module.elb.alb_dns_name
+}
