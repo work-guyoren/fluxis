@@ -121,6 +121,24 @@ The CI/CD pipeline consists of three workflows:
 - **Microservice-1**: RESTful API that validates inputs and sends messages to SQS
 - **Microservice-2**: Background worker that processes SQS messages and stores them in S3
 
+## Monitoring
+
+The application includes CloudWatch monitoring for observability:
+
+- **CloudWatch Dashboard**: Provides metrics visualization for both microservices
+- **Alarms**: Configured for high CPU usage and SQS message age thresholds
+- **Logs**: All microservice logs are sent to CloudWatch Log groups
+
+To access the CloudWatch dashboard:
+
+```bash
+# Get the dashboard URL from Terraform output
+DASHBOARD_URL=$(terraform output -raw cloudwatch_dashboard_url)
+
+# Or navigate directly in AWS Console
+echo "Navigate to: https://console.aws.amazon.com/cloudwatch/home?region=us-east-2#dashboards:name=fluxis-${TF_VAR_environment}-dashboard"
+```
+
 ## Triggering Microservices via ALB
 
 To test the microservices after deployment, you can send a request to Microservice-1 via the Application Load Balancer:
